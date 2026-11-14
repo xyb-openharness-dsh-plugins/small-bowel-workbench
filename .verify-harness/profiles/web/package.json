@@ -2,7 +2,7 @@
   "name": "dsh-profile-sba-verify",
   "private": true,
   "dependencies": {
-    "@xyb-community/small-bowel-workbench": "file:/Users/qinxiaoqiang/dev/small-bowel-workbench/release/xyb-community-small-bowel-workbench-0.1.0.tgz"
+    "@xyb-community/small-bowel-workbench": "file:/Users/qinxiaoqiang/dev/small-bowel-workbench/release/xyb-community-small-bowel-workbench-0.2.0.tgz"
   },
   "dsh": {
     "profile": {

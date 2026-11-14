@@ -1,6 +1,8 @@
 node_modules/
 .npm-cache/
 .omx/
+.verify-harness/
+.pnpm-store/
 *.tgz
 .DS_Store
 .env
@@ -9,6 +11,7 @@ node_modules/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+!research/*/clinical-library.sqlite
 *.db
 .secrets
 .secrets/

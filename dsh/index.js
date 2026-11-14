@@ -27,6 +27,7 @@ export { openStore, closeStore, migrate, tableNames } from './store.js';
 export { seedDemoData, hasDemoData, DEMO_KEYS } from './demo.js';
 export { PLUGIN_ID, API_PREFIX, UI_BASE } from '../lib/identity.js';
 export { PANEL, AGENT_PANE, assertPanelConfig } from '../lib/layout.js';
+export { LIBRARY_ENTRIES, LIBRARY_SOURCES, libraryPayload } from './library.js';
 
 export const name = PLUGIN_ID;
 export const inject = ['webServer', 'connection'];
@@ -83,6 +84,7 @@ export function apply(ctx, config = {}) {
     buildDate,
     capabilities: [
       'health', 'bootstrap', 'subjects', 'read', 'write', 'privacy', 'export', 'data-root', 'trials',
+      'library',
     ],
     bootstrap: (key) => workbench.bootstrap(key),
     listSubjects: () => workbench.subjects(),
@@ -95,6 +97,7 @@ export function apply(ctx, config = {}) {
     dataRoot: () => workbench.dataRoot,
     setDataRoot: (dir) => workbench.setDataRoot(dir),
     trialMatch: () => workbench.trialMatch(),
+    clinicalLibrary: () => workbench.clinicalLibrary(),
     currentProfileKey: () => workbench.getCurrentProfileKey(),
   };
 

@@ -9,6 +9,7 @@ import {
   readDiagnoses, readPathology, readLabs, readImaging, readTreatments, readMedications,
   readSymptoms, readNutrition, readFollowups, readDocuments, readSavedTrials, readViewpoints,
 } from '../dsh/readmodels.js';
+import { libraryPayload } from '../dsh/library.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -70,6 +71,7 @@ function makeHarness() {
     fetch: async (url) => {
       const u = String(url);
       if (u.includes('/bootstrap')) return response(boot);
+      if (u.includes('/library')) return response(libraryPayload());
       const match = u.match(/\/read\/([a-z]+)/);
       if (match) return response({ entity: match[1], profileKey: key, data: reads[match[1]] });
       throw new Error('unexpected fetch: ' + u);
@@ -128,6 +130,17 @@ test('页面运行时：化验卡按两组展示，图表 SVG 合法', async () 
   const ceaCard = (html.match(/<h2>CEA<\/h2>[\s\S]*?<\/section>/) || [''])[0];
   assert.ok(ceaCard.includes('示例医院 A') && ceaCard.includes('示例医院 B'), 'CEA 卡未包含两组');
   assert.equal((ceaCard.match(/class="lab-group"/g) || []).length, 2);
+});
+
+test('页面运行时：试验页展示本机临床库，但不伪造试验条数', async () => {
+  const h = makeHarness();
+  await waitFor(() => h.element('page').innerHTML.length > 0);
+  const html = await h.sandbox.buildPage('trials');
+  assert.ok(html.includes('本机临床库'));
+  assert.ok(html.includes('收录范围：小肠原发腺癌'));
+  assert.ok(html.includes('NOT_CONNECTED'));
+  assert.ok(html.includes('待临床审核'));
+  assert.ok(!/\d+ 条试验/.test(html), '未接通时不得显示试验条数');
 });
 
 test('页面运行时：只读桥可切页、拒绝未知页，不提供写入', async () => {

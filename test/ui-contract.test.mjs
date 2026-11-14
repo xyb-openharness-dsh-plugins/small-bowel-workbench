@@ -48,3 +48,20 @@ test('页面不写死演示档案 key（由 bootstrap 驱动）', () => {
   assert.ok(!app.includes('demo-sba-a'));
   assert.ok(!app.includes('demo-sba-b'));
 });
+
+test('M5 写入与隐私入口：12 类记录、两个对话框、逐条切换', () => {
+  assert.equal((app.match(/kind: '[a-z]+', label:/g) || []).length, 12);
+  assert.ok(html.includes('id="entry-dialog"'));
+  assert.ok(html.includes('id="profile-dialog"'));
+  assert.ok(html.includes('id="entry-private"'));
+  assert.ok(app.includes('data-privacy-kind'));
+  assert.ok(app.includes("api('/entries'"));
+  assert.ok(app.includes("api('/privacy'"));
+  assert.ok(app.includes('/export'));
+});
+
+test('M4 临床库：页面有入口，来源终态可见', () => {
+  assert.ok(app.includes("api('/library')"));
+  assert.ok(app.includes('本机临床库'));
+  assert.ok(app.includes('待临床审核'));
+});

@@ -12,7 +12,7 @@
 | 静态 | `public/`，宿主挂载 `/small-bowel/` |
 | 健康 | `GET /api/small-bowel/health` |
 | 认证 | `ctx.connection.requestRejection(req)`；缺失能力 503 |
-| 面板 | `customFrame:true`、`businessSide:'left'`、`businessWidth:0.65` |
+| 面板 | `customFrame:true`、`businessSide:'left'`、`businessWidth:0.65`；`newSession` + `subscribe` + `currentSession/ownsSession` |
 
 ## 路由
 
@@ -27,5 +27,6 @@
 | POST | `/api/small-bowel/entries` | 新增记录（M3 仅服务端能力，UI 留 M4） |
 | GET | `/api/small-bowel/root` | 资料目录状态 |
 | POST | `/api/small-bowel/root` | 设置资料目录（拒绝主目录/桌面/下载/tmp） |
+| GET | `/api/small-bowel/library` | 本机临床库条目与来源终态（只读） |
 
 错误一律 JSON：`{ error, detail? }`；静态 404 回 `index.html` 走 SPA。

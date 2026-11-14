@@ -1,0 +1,21 @@
+{
+  "profile": "/Users/qinxiaoqiang/dev/small-bowel-workbench/.verify-harness/profiles/web",
+  "checked": 1,
+  "rows": [
+    {
+      "pkgName": "@xyb-community/small-bowel-workbench",
+      "version": "0.2.0",
+      "newSession": 1,
+      "subscribe": 1,
+      "ensureSession": 0,
+      "boolConv": 0,
+      "ui": "public/",
+      "inBundles": true,
+      "isDep": true,
+      "hardFails": []
+    }
+  ],
+  "fails": [],
+  "notes": [],
+  "leftovers": []
+}

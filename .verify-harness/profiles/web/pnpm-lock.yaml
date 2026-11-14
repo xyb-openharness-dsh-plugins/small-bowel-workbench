@@ -9,14 +9,14 @@ importers:
   .:
     dependencies:
       '@xyb-community/small-bowel-workbench':
-        specifier: file:/Users/qinxiaoqiang/dev/small-bowel-workbench/release/xyb-community-small-bowel-workbench-0.1.0.tgz
-        version: file:../../../release/xyb-community-small-bowel-workbench-0.1.0.tgz
+        specifier: file:/Users/qinxiaoqiang/dev/small-bowel-workbench/release/xyb-community-small-bowel-workbench-0.2.0.tgz
+        version: file:../../../release/xyb-community-small-bowel-workbench-0.2.0.tgz
 
 packages:
 
-  '@xyb-community/small-bowel-workbench@file:../../../release/xyb-community-small-bowel-workbench-0.1.0.tgz':
-    resolution: {integrity: sha512-xODJtf3iVoz6OD1PJhxxusyFXmDX1iH/UC1R9JAOhD8VvPV9cBCTWVVy1UqV8BdI0Pn3zxPf0+TtY7sB2NyXEw==, tarball: file:../../../release/xyb-community-small-bowel-workbench-0.1.0.tgz}
-    version: 0.1.0
+  '@xyb-community/small-bowel-workbench@file:../../../release/xyb-community-small-bowel-workbench-0.2.0.tgz':
+    resolution: {integrity: sha512-rGttntCTI/CXKuV5AkGY697TNnh0+2Zf0kkNrmytDmwdPfeUNpQtv+yAYOGSVXcmp/+mSyKZpLuLlUEH9Gb4mA==, tarball: file:../../../release/xyb-community-small-bowel-workbench-0.2.0.tgz}
+    version: 0.2.0
     peerDependencies:
       '@deepseek-ai/cordis': '>=4.0.1 <5'
       '@deepseek-ai/dsh-client-connection': '>=0.1.0-rc.0 <0.3.0-0'
@@ -25,4 +25,4 @@ packages:
 
 snapshots:
 
-  '@xyb-community/small-bowel-workbench@file:../../../release/xyb-community-small-bowel-workbench-0.1.0.tgz': {}
+  '@xyb-community/small-bowel-workbench@file:../../../release/xyb-community-small-bowel-workbench-0.2.0.tgz': {}

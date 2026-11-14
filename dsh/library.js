@@ -1,0 +1,160 @@
+/**
+ * 本机临床库（M4）：只放「范围、字段、记录口径」与通道终态，不复制指南正文，
+ * 不生成诊断/治疗建议。所有条目在临床审核前固定为 pending-clinical-review。
+ *
+ * 单一来源：research/small-bowel-cancer/ 的 JSONL + SQLite 由
+ * scripts/build-clinical-library.mjs 从本文件生成，--check 只校验同步。
+ */
+
+export const LIBRARY_TOPIC = 'small-bowel-cancer';
+export const LIBRARY_SNAPSHOT_DATE = '2026-11-14';
+
+export const LIBRARY_SOURCES = [
+  {
+    sourceId: 'nccn-sba-3.2025',
+    label: 'NCCN Small Bowel Adenocarcinoma 3.2025',
+    state: 'REFERENCE_ONLY',
+    detail: '仅登记指南名称、版本与收录范围；未取得原件，不复制正文。',
+    checkedAt: null,
+  },
+  {
+    sourceId: 'clinicaltrials-gov',
+    label: 'ClinicalTrials.gov',
+    state: 'NOT_CONNECTED',
+    detail: '本次开发环境未联网，未建立试验快照；不展示条数，不生成匹配结论。',
+    checkedAt: null,
+  },
+  {
+    sourceId: 'family-contract',
+    label: '小 X 宝家族数据与面板合同',
+    state: 'LOCAL_ONLY',
+    detail: '仅引用本仓 DEV-REQUIREMENTS / SCHEMA / 02-DSH-CONTRACT 的工程约束。',
+    checkedAt: LIBRARY_SNAPSHOT_DATE,
+  },
+  {
+    sourceId: 'clinical-review',
+    label: '临床审核',
+    state: 'PENDING',
+    detail: '0 位临床医生审核；所有条目、阈值与措辞在审核前不得视为医学定稿。',
+    checkedAt: null,
+  },
+];
+
+export const LIBRARY_ENTRIES = [
+  {
+    recordId: 'scope-primary-small-bowel',
+    category: 'scope',
+    title: '收录范围：小肠原发腺癌',
+    summaryText: '本台只整理十二指肠、空肠、回肠的原发腺癌资料。壶腹部癌、胰胆来源、GIST、淋巴瘤与神经内分泌肿瘤不在范围内；界面与导出都保留这条边界。',
+    appliesTo: 'record',
+    sourceId: 'nccn-sba-3.2025',
+    verification: 'pending-clinical-review',
+    cautionText: '解剖归属由医生与病理报告确定，本台不据影像或症状推断原发部位。',
+  },
+  {
+    recordId: 'diagnosis-materials',
+    category: 'diagnosis',
+    title: '确诊材料按来源登记',
+    summaryText: '小肠镜、胶囊内镜、CT/MRI、病理与会诊意见分别登记日期、机构与报告原文；同一结论来自不同机构时并列保留，不合并成单一结论。',
+    appliesTo: 'record',
+    sourceId: 'family-contract',
+    verification: 'pending-clinical-review',
+    cautionText: '检查项目是否必要由医生决定；本台不根据症状推荐检查。',
+  },
+  {
+    recordId: 'pathology-fields',
+    category: 'pathology',
+    title: '病理与分子检测只照录原文',
+    summaryText: '病理类型、分级、切缘、淋巴结计数与分子检测结果均以报告原文保存；本台不解释切缘好坏，也不把分子结果转成用药建议。',
+    appliesTo: 'record',
+    sourceId: 'family-contract',
+    verification: 'pending-clinical-review',
+    cautionText: '报告缺项时显示「未记录」，不用相邻病种口径补齐。',
+  },
+  {
+    recordId: 'surgery-record',
+    category: 'treatment',
+    title: '手术记录按术式与日期归档',
+    summaryText: '记录手术名称、日期、机构、切缘与淋巴结原文，以及术后并发症的医生描述；不判断是否切干净，也不比较不同术式的优劣。',
+    appliesTo: 'treatment',
+    sourceId: 'family-contract',
+    verification: 'pending-clinical-review',
+    cautionText: '术式选择与再次手术评估属于医生决策。',
+  },
+  {
+    recordId: 'systemic-record',
+    category: 'treatment',
+    title: '系统治疗记录方案、周期与意图',
+    summaryText: '按医嘱记录治疗类别、方案名称、起止日期、周期数与医生写的治疗意图；不做效果判断，不排列一线/二线，也不写用药建议。',
+    appliesTo: 'treatment',
+    sourceId: 'family-contract',
+    verification: 'pending-clinical-review',
+    cautionText: '小肠腺癌的系统治疗证据常参考其他瘤种，本台不代为外推。',
+  },
+  {
+    recordId: 'nutrition-record',
+    category: 'nutrition',
+    title: '体重、进食与补充剂分开记',
+    summaryText: '体重按日期单独成线；进食方式、肠内/肠外营养与补充剂按原文记录。本台不计算需要量，不给剂量或配方建议。',
+    appliesTo: 'symptoms',
+    sourceId: 'family-contract',
+    verification: 'pending-clinical-review',
+    cautionText: '持续呕吐、无法进水或体重快速变化时，按医院给的紧急联系方式处理。',
+  },
+  {
+    recordId: 'followup-record',
+    category: 'followup',
+    title: '随访只记录医生已安排的項目',
+    summaryText: '复诊日期、检查项目与状态来自医生安排或预约单；本台不推算下次复查时间，也不根据结果自动生成复查计划。',
+    appliesTo: 'followup',
+    sourceId: 'family-contract',
+    verification: 'pending-clinical-review',
+    cautionText: '复查间隔以主诊医生意见为准。',
+  },
+  {
+    recordId: 'trials-not-connected',
+    category: 'trials',
+    title: '试验检索未接通时不显示条数',
+    summaryText: '临床试验通道本次为 NOT_CONNECTED；页面只展示通道终态与收藏入口，不返回未经核对的试验条数或匹配结论。',
+    appliesTo: 'trials',
+    sourceId: 'clinicaltrials-gov',
+    verification: 'pending-clinical-review',
+    cautionText: '是否符合入组条件必须由研究团队按方案原文核对。',
+  },
+  {
+    recordId: 'privacy-three-exits',
+    category: 'privacy',
+    title: '私密记录三个出口同时过滤',
+    summaryText: '标记私密的记录不出现在页面摘要、导出文件与 AI 上下文中；三个出口使用同一条 is_private 过滤规则。',
+    appliesTo: 'documents',
+    sourceId: 'family-contract',
+    verification: 'pending-clinical-review',
+    cautionText: '私密切换是本地标记，不替代设备锁屏与磁盘加密。',
+  },
+  {
+    recordId: 'synthetic-only',
+    category: 'data',
+    title: '演示档案全部为合成数据',
+    summaryText: '两套演示档案的姓名、医院、医生、日期与编号均为虚构；导出与打印保留「合成示例」标识，避免被当成真实病例。',
+    appliesTo: 'documents',
+    sourceId: 'family-contract',
+    verification: 'pending-clinical-review',
+    cautionText: '真实资料只能由用户在本机目录中录入。',
+  },
+];
+
+export function libraryPayload() {
+  return {
+    topic: LIBRARY_TOPIC,
+    snapshotDate: LIBRARY_SNAPSHOT_DATE,
+    state: 'LOCAL_ONLY',
+    note: '本机临床库只含范围与记录口径；未取得指南原件，试验通道未接通。',
+    sources: LIBRARY_SOURCES,
+    entries: LIBRARY_ENTRIES,
+    counts: {
+      entries: LIBRARY_ENTRIES.length,
+      sources: LIBRARY_SOURCES.length,
+      connectedSources: LIBRARY_SOURCES.filter((s) => s.state === 'OK').length,
+    },
+  };
+}

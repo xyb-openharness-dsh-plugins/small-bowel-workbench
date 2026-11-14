@@ -1,6 +1,6 @@
 # DEV-PLAN · small-bowel-workbench
 
-版本 0.1.0 · 2026-11-14 · 状态：M0–M3 完成，M4+ 未开始；无人值守开发日，晨审未追认。
+版本 0.2.0 · 2026-11-14 · 状态：M0–M6 完成，M7–M9 只出草稿；无人值守开发日，晨审未追认。
 
 ## 一、认领记录
 
@@ -27,17 +27,20 @@
 | M1 | DSH 插件入口、health/bootstrap、静态服务、customFrame 外壳 | ✅ 完成 | `npm run check` 的 host/smoke 项 |
 | M2 | SQLite 模型 0001、迁移 ledger、两套合成档案 | ✅ 完成 | `test/store.test.mjs`、`test/demo.test.mjs` |
 | M3 | 八页骨架、只读 readmodels、三态与档案切换 | ✅ 完成 | `test/ui-contract.test.mjs`、`test/readmodels.test.mjs` |
-| M4 | 新增/编辑记录 UI、私密切换、导出 | ⬜ 未开始 | — |
-| M5 | 文档导入（MinerU 契约 + 降级） | ⬜ 未开始 | — |
-| M6 | 试验检索快照与匹配 | ⬜ 未开始 | — |
-| M7 | 真机装机 V2 | ⬜ 未开始 | — |
-| M8 | 业务验收 V3 与 BACKLOG 回填 | ⬜ 未开始 | — |
+| M4 | 本机临床库：范围/字段/通道终态快照 | ✅ 完成（LOCAL_ONLY） | `dsh/library.js`、`research/small-bowel-cancer/`、`check-clinical-library` |
+| M5 | 开发版：12 类记录写入、隐私、导出、档案与资料目录 | ✅ 完成 | `public/app.js`、`test/ui-contract.test.mjs` |
+| M6 | 装隔离测试 profile 并复扫 | ✅ 1/1 通过 | `.verify-results/check-profile-small-bowel-2.txt` |
+| M7 | 只备 tag / release notes 草稿 | ✅ 草稿完成，未发 | `docs/release-draft/TAG-0.2.0.md` |
+| M8 | 只备 BACKLOG 状态行草稿，不提 PR | ✅ 草稿完成，未提 | `docs/release-draft/BACKLOG-ROW.md` |
+| M9 | 经验回流 | ✅ 完成 | `docs/LESSONS.md` |
+| V2 | 真实 Desktop 界面加载与点击 | ⬜ 未做 | 未重启 Desktop |
+| V3 | 真实用户流程与临床审核 | ⬜ 未做 | 0 患者访谈 / 0 临床审核 |
 
 ## 四、无人值守边界
 
-允许：仓内文件、脚本、测试、本地 git commit。
+允许：仓内文件、脚本、测试、本地 git commit、仓内隔离测试 profile。
 冻结：tag、GitHub Release、BACKLOG 回填 PR（草稿在 `docs/release-draft/`）。
-禁止：公开出版、向他人仓库推送、装机、读取真实患者资料。
+禁止：公开出版、向他人仓库推送、改日常 profile、重启 Desktop、读取真实患者资料。
 
 ## 五、已知风险
 

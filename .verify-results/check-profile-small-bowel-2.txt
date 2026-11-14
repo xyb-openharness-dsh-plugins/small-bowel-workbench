@@ -1,0 +1,9 @@
+profile: /Users/qinxiaoqiang/dev/small-bowel-workbench/.verify-harness/profiles/web
+已登记 bundles: 1 · dependencies: 1
+
+工作表                               版本            面板(new/sub)   界面                    bundle  dep
+✓ @xyb-community/small-bowel-workbench0.2.0         1/1           public/                 ✓   ✓
+
+通过 1/1
+
+✓ 装机层核验通过（界面加载与点击行为仍需重开 Desktop 后人验）

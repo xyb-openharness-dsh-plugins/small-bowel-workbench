@@ -14,7 +14,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 function services(wb) {
   return {
     version, displayVersion, buildDate: build,
-    capabilities: ['health', 'bootstrap', 'subjects', 'read', 'write', 'privacy', 'export', 'data-root', 'trials'],
+    capabilities: ['health', 'bootstrap', 'subjects', 'read', 'write', 'privacy', 'export', 'data-root', 'trials', 'library'],
     bootstrap: (key) => wb.bootstrap(key),
     listSubjects: () => wb.subjects(),
     createSubject: (input) => wb.createSubject(input),
@@ -26,6 +26,7 @@ function services(wb) {
     dataRoot: () => wb.dataRoot,
     setDataRoot: (dir) => wb.setDataRoot(dir),
     trialMatch: () => wb.trialMatch(),
+    clinicalLibrary: () => wb.clinicalLibrary(),
     currentProfileKey: () => wb.getCurrentProfileKey(),
   };
 }
@@ -102,6 +103,18 @@ test('API：health / bootstrap / read / subjects', async () => {
 
     const del = await invoke(handler, 'DELETE', `/api/small-bowel/subjects?profileKey=${created.json.profileKey}`);
     assert.equal(del.json.deleted, true);
+  });
+});
+
+test('API：本机临床库返回条目与来源终态，不伪造联网结果', async () => {
+  await withServer(async (handler) => {
+    const res = await invoke(handler, 'GET', '/api/small-bowel/library');
+    assert.equal(res.status, 200);
+    assert.equal(res.json.state, 'LOCAL_ONLY');
+    assert.equal(res.json.entries.length, 10);
+    assert.equal(res.json.counts.connectedSources, 0);
+    assert.ok(res.json.sources.some((s) => s.state === 'NOT_CONNECTED'));
+    assert.ok(res.json.entries.every((e) => e.verification === 'pending-clinical-review'));
   });
 });
 

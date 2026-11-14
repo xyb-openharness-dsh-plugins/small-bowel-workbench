@@ -25,6 +25,51 @@
     </div>
     <div class="primer-body" id="primer-body"></div>
   </dialog>
+  <dialog id="entry-dialog" aria-labelledby="entry-title">
+    <form id="entry-form">
+      <div class="primer-head">
+        <p class="eyebrow">本机写入 · 只存原文</p>
+        <h2 id="entry-title">新增一条记录</h2>
+        <button class="icon-btn" data-close-entry type="button" aria-label="关闭新增记录">×</button>
+      </div>
+      <div class="form-body">
+        <label class="field"><span>记录类型</span>
+          <select id="entry-kind" name="kind"></select>
+        </label>
+        <div id="entry-fields" class="form-grid"></div>
+        <label class="check"><input type="checkbox" id="entry-private" name="isPrivate"> 标记为私密（不出现在摘要、导出与 AI 上下文）</label>
+        <p class="sub" id="entry-hint">日期格式 YYYY-MM-DD；不清楚的字段留空即可。</p>
+      </div>
+      <div class="form-foot">
+        <button class="text-btn" data-close-entry type="button">取消</button>
+        <button class="primary-btn" type="submit">保存到本机</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="profile-dialog" aria-labelledby="profile-title">
+    <form id="profile-form">
+      <div class="primer-head">
+        <p class="eyebrow">本机档案 · 合成示例之外</p>
+        <h2 id="profile-title">新建本机档案</h2>
+        <button class="icon-btn" data-close-profile type="button" aria-label="关闭新建档案">×</button>
+      </div>
+      <div class="form-body">
+        <div class="form-grid">
+          <label class="field"><span>档案名 *</span><input name="name" required placeholder="例如：我的档案"></label>
+          <label class="field"><span>出生年份</span><input name="birthYear" inputmode="numeric" placeholder="1958"></label>
+          <label class="field"><span>原发部位</span><input name="primarySiteText" placeholder="空肠 / 回肠 / 十二指肠"></label>
+          <label class="field"><span>病理类型</span><input name="histologyText" placeholder="按报告原文"></label>
+          <label class="field"><span>确诊日期</span><input name="diagnosedOn" type="date"></label>
+          <label class="field"><span>医院</span><input name="hospitalText" placeholder="按报告原文"></label>
+        </div>
+        <p class="sub">档案只存本机资料目录；不会上传。空字段保存为「未记录」。</p>
+      </div>
+      <div class="form-foot">
+        <button class="text-btn" data-close-profile type="button">取消</button>
+        <button class="primary-btn" type="submit">创建档案</button>
+      </div>
+    </form>
+  </dialog>
   <script src="/small-bowel/primer.js"></script>
   <script src="/small-bowel/app.js"></script>
 </body>

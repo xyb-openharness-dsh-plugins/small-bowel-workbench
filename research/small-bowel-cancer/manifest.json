@@ -1,0 +1,33 @@
+{
+  "topic": "small-bowel-cancer",
+  "snapshotDate": "2026-11-14",
+  "recordCount": 10,
+  "dbCount": 10,
+  "sourceStatusRows": 4,
+  "files": {
+    "clinical-entries.jsonl": {
+      "sha256": "876b5be6b347e5b729de448f560586cfea5852d7906a6c1f357ce4c0f3708714"
+    },
+    "clinical-library.sqlite": {
+      "sha256": "b40938a859f3426a8292fb188fbbcee85988b559d3bc77ce4c95abea076c8eef"
+    }
+  },
+  "sources": [
+    {
+      "sourceId": "nccn-sba-3.2025",
+      "state": "REFERENCE_ONLY"
+    },
+    {
+      "sourceId": "clinicaltrials-gov",
+      "state": "NOT_CONNECTED"
+    },
+    {
+      "sourceId": "family-contract",
+      "state": "LOCAL_ONLY"
+    },
+    {
+      "sourceId": "clinical-review",
+      "state": "PENDING"
+    }
+  ]
+}

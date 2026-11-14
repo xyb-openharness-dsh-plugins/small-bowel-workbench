@@ -188,6 +188,11 @@ export function createHandler({ apiBase = '/api/small-bowel', publicDir, service
       return sendJson(res, 200, services.trialMatch());
     }
 
+    if (pathname === api + '/library') {
+      if (req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
+      return sendJson(res, 200, services.clinicalLibrary());
+    }
+
     /* ---------- 静态 ---------- */
     if (req.method !== 'GET' && req.method !== 'HEAD') return sendJson(res, 405, { error: 'Method not allowed' });
     const staticPath = stripMount(pathname);

@@ -14,6 +14,7 @@ import {
 } from './readmodels.js';
 import { DB_FILE } from '../lib/identity.js';
 import { version, displayVersion, build as buildDate } from '../lib/version.js';
+import { libraryPayload } from './library.js';
 
 const READERS = {
   diagnoses: readDiagnoses,
@@ -372,6 +373,7 @@ export class Workbench {
       upcoming: current ? upcomingFollowups(this.db, current) : [],
       channels: {
         trials: { status: 'NOT_CONNECTED', label: '试验检索未接通（M6）；不展示未经核对的条数' },
+        library: { status: 'LOCAL_ONLY', label: '本机临床库：只含范围与记录口径，待临床审核' },
         documents: { status: 'NOT_CONNECTED', label: '文档解析未接通（MinerU 未配置）' },
         ai: { status: 'HOST_MANAGED', label: 'AI 会话由 DSH 宿主管理' },
       },
@@ -397,5 +399,9 @@ export class Workbench {
       reason: '本次开发环境未联网，未建立试验快照；不返回未经核对的结果。',
       checkedAt: new Date().toISOString(),
     };
+  }
+
+  clinicalLibrary() {
+    return libraryPayload();
   }
 }

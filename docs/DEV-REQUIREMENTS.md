@@ -1,6 +1,6 @@
 # DEV-REQUIREMENTS · small-bowel-workbench
 
-版本 0.1.0 · 2026-11-14 · 状态：M0–M3 开发日草案，**未经用户签认、未经临床审核**。
+版本 0.2.0 · 2026-11-14 · 状态：M0–M5 开发版，**未经用户签认、未经临床审核**。
 
 本文件是本仓硬约束的唯一入口。与家族通用文档冲突时，以本文件与用户当次指示为准。
 
@@ -28,7 +28,7 @@
 | 3 | 每页必须有：加载态、空态、错误态；错误不白屏 | `public/app.js` 三态函数 + 服务端错误 JSON |
 | 4 | 资料目录未配置时，页面给出可读提示，不静默写默认目录 | `check-data-dir.mjs` + 页面 banner |
 | 5 | 演示档案切换后所有页面联动，不串档 | `test/readmodels.test.mjs` A/B 断言 |
-| 6 | 私密记录在页面摘要、`/api/export`、AI 上下文三出口均被过滤 | `test/privacy.test.mjs` |
+| 6 | 私密记录在页面摘要、`/api/export`、AI 上下文三出口均被过滤 | `test/server.test.mjs` 隐私用例 |
 
 ## 四、数据层纪律
 
@@ -45,6 +45,7 @@
 - 自带 API 只用 `/api/small-bowel/*` 前缀；宿主形态必须调用 `ctx.connection.requestRejection(req)`，缺失能力返回 503，不绕过鉴权。
 - `cordis.patch.yml` 的 `insert.name` 是完整 npm 包名。
 - 客户端 `customFrame: true`、`businessSide: 'left'`、`businessWidth: 0.65`，参数唯一来源 `lib/layout.js`。
+- 面板必须调用 `newSession` 创建归属会话、订阅 `desktopWorkbenches.subscribe` 刷新；会话归属用 `currentSession + ownsSession` 判定；不得调用 `ensureSession`，不得用 `Boolean(conversation)` 判会话。
 - 业务界面全部在 `public/`，宿主外壳只放 iframe；不在客户端重画第二套业务 UI。
 - 原生会话始终挂载，只以 `display` 控显隐；不得卸载导致草稿丢失。
 - 不覆盖宿主导航、设置、窗口按钮；macOS 顶栏避让由宿主外壳负责。
@@ -77,3 +78,4 @@ npm run pack:check     # 包内容
 - 不装机到真实 DSH Desktop；不修改本仓以外目录。
 - 不接入真实患者资料；不把合成示例写成真实病例。
 - 不新增云端上传、密钥或遥测。
+- 临床库只放范围与记录口径；未接通来源写 `NOT_CONNECTED`，不补试验条数。

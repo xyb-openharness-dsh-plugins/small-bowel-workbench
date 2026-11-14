@@ -1,7 +1,7 @@
 /* 宿主客户端外壳（源文件）：customFrame + 业务 iframe + 原生会话右栏。
    业务界面全部在 public/，这里只做入口、状态、分栏与草稿桥，不重画第二套业务 UI。 */
 
-const INJECT = ['desktopWorkbenches'];
+const INJECT = ['desktopWorkbenches', 'sessions'];
 
 const META = {
   title: '小肠宝 SmallBowelPal · 小肠腺癌工作台',
@@ -18,6 +18,36 @@ const UI_ENTRY = '/small-bowel/';
 const HEALTH_URL = '/api/small-bowel/health';
 const WIDTH_KEY = 'sba:agent-width';
 const PANE_KEY = 'sba:agent-open';
+
+/* 宿主上下文：apply(ctx) 时注入。会话归属只问宿主，不能靠 conversation 容器判断：
+   customFrame 下没有会话时宿主也会传隐藏容器。 */
+let bridge = null;
+
+function currentSession() {
+  const service = bridge && bridge.desktopWorkbenches;
+  if (typeof service?.currentSession === 'function') return service.currentSession() || null;
+  const snapshot = bridge?.sessions?.list?.getSnapshot?.();
+  return snapshot?.current || Object.keys(snapshot?.byId || {}).find((id) =>
+    (snapshot.byId[id]?.retainedBy?.mainView ?? 0) > 0) || null;
+}
+
+function ownsSession(sessionId) {
+  if (!sessionId) return false;
+  const service = bridge && bridge.desktopWorkbenches;
+  return typeof service?.ownsSession === 'function' ? service.ownsSession(sessionId) : false;
+}
+
+function ownedSession() {
+  const id = currentSession();
+  return ownsSession(id) ? id : null;
+}
+
+async function createOwnedSession() {
+  const service = bridge && bridge.desktopWorkbenches;
+  let workspaceId;
+  try { workspaceId = service?.defaultWorkspace?.()?.workspaceId; } catch { workspaceId = undefined; }
+  return service.newSession(workspaceId);
+}
 
 function readStorage(key, fallback) {
   try {
@@ -39,7 +69,10 @@ function buildPanel(React) {
     const conversation = props && props.conversation ? props.conversation : null;
     const [phase, setPhase] = React.useState('loading');
     const [phaseDetail, setPhaseDetail] = React.useState('');
+    const [paneTick, setPaneTick] = React.useState(0);
     const [paneOpen, setPaneOpen] = React.useState(() => readStorage(PANE_KEY, '1') !== '0');
+    const [creatingSession, setCreatingSession] = React.useState(false);
+    const [sessionNote, setSessionNote] = React.useState('');
     const [width, setWidth] = React.useState(() => {
       const n = Number(readStorage(WIDTH_KEY, String(__AGENT_PANE__.default)));
       return Number.isFinite(n) ? Math.min(__AGENT_PANE__.max, Math.max(__AGENT_PANE__.min, n)) : __AGENT_PANE__.default;
@@ -51,6 +84,18 @@ function buildPanel(React) {
     const frameRef = React.useRef(null);
     const widthRef = React.useRef(width);
     widthRef.current = width;
+
+    React.useEffect(() => {
+      const off = bridge?.desktopWorkbenches?.subscribe?.(() => setPaneTick((n) => n + 1));
+      return () => { try { off?.(); } catch { /* 宿主已卸载订阅表 */ } };
+    }, []);
+
+    const activeSession = ownedSession();
+    void paneTick;
+    const hasConversation = Boolean(activeSession);
+    const canCreateSession = typeof (bridge && bridge.desktopWorkbenches &&
+      bridge.desktopWorkbenches.newSession) === 'function';
+    const canOpenAgent = hasConversation || canCreateSession;
 
     React.useEffect(() => {
       let alive = true;
@@ -104,7 +149,37 @@ function buildPanel(React) {
       };
     }, [dragging]);
 
-    const togglePane = () => setPaneOpen((open) => !open);
+    const togglePane = async () => {
+      if (hasConversation) {
+        setPaneOpen((open) => !open);
+        return;
+      }
+      if (!canCreateSession || creatingSession) return;
+      setCreatingSession(true);
+      setSessionNote('');
+      try {
+        const id = await createOwnedSession();
+        if (!id) {
+          setSessionNote('已取消资料目录选择，没有创建会话。可以再次点击「AI 对话」重试。');
+          return;
+        }
+        setPaneOpen(true);
+      } catch (error) {
+        setSessionNote('没能创建会话：' + ((error && error.message) || error));
+      } finally {
+        setCreatingSession(false);
+      }
+    };
+
+    const agentLabel = !canOpenAgent
+      ? 'AI 对话暂不可用'
+      : creatingSession
+        ? '正在连接…'
+        : paneOpen
+          ? '收起 AI'
+          : hasConversation
+            ? '打开 AI 对话'
+            : 'AI 对话';
     const retryHealth = () => {
       setPhase('loading');
       fetch(HEALTH_URL, { headers: { accept: 'application/json' } })
@@ -195,9 +270,14 @@ function buildPanel(React) {
         h('button', { type: 'button', style: styles.btn, onClick: () => frameRef.current && frameRef.current.contentWindow && frameRef.current.contentWindow.location.reload() }, '刷新'),
         h('button', {
           type: 'button', style: styles.btn, onClick: togglePane,
+          disabled: !canOpenAgent || creatingSession,
+          title: canOpenAgent ? undefined : '当前 DSH Desktop 未提供原生会话接口；业务区照常可用。',
           'aria-pressed': paneOpen ? 'true' : 'false',
-        }, paneOpen ? '收起 AI' : 'AI 对话'),
+        }, agentLabel),
       ),
+      sessionNote
+        ? h('div', { role: 'status', style: { ...styles.error, background: '#faf2d8', color: '#5a4a1a' } }, sessionNote)
+        : null,
       phase === 'error'
         ? h('div', { style: styles.error, role: 'alert' },
             '本机服务没有响应：' + phaseDetail + '。资料不会被改动；可以先刷新，或检查 DSH 宿主是否加载了本工作台。',
@@ -267,6 +347,7 @@ function buildPanel(React) {
 }
 
 function apply(ctx) {
+      bridge = ctx;
   const Panel = buildPanel(React);
   ctx.effect(() => ctx.desktopWorkbenches.register({
     title: META.title,

@@ -20,3 +20,9 @@
 ## 回填草稿（冻结，不提交）
 
 见 `docs/release-draft/BACKLOG-ROW.md`。只在 V1+V2+V3 全过后才允许改状态列与招募列。
+
+## 2026-11-14 第二轮
+
+- 组织仓 `xyb-openharness-dsh-plugins/small-bowel-workbench` 已存在（GitHub API 可读，默认分支 `main`）。
+- 本机 SSH 22/443 均被沙箱拒绝（`Operation not permitted`），`gh` token 仍 invalid；未 push、未发认领 issue、未提 PR。
+- 只备状态行草稿，未改远端 BACKLOG。

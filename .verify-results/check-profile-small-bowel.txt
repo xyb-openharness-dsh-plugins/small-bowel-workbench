@@ -1,0 +1,11 @@
+profile: /Users/qinxiaoqiang/dev/small-bowel-workbench/.verify-harness/profiles/web
+已登记 bundles: 1 · dependencies: 1
+
+工作表                               版本            面板(new/sub)   界面                    bundle  dep
+✗ @xyb-community/small-bowel-workbench0.1.0         0/0           public/                 ✓   ✓
+
+通过 0/1
+
+✗ @xyb-community/small-bowel-workbench
+   - 没有 newSession（无会话时点「AI 对话」不会创建）
+   - 没有 subscribe（新建/切换会话后界面不会刷新）

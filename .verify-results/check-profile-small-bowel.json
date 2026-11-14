@@ -1,0 +1,32 @@
+{
+  "profile": "/Users/qinxiaoqiang/dev/small-bowel-workbench/.verify-harness/profiles/web",
+  "checked": 1,
+  "rows": [
+    {
+      "pkgName": "@xyb-community/small-bowel-workbench",
+      "version": "0.1.0",
+      "newSession": 0,
+      "subscribe": 0,
+      "ensureSession": 0,
+      "boolConv": 0,
+      "ui": "public/",
+      "inBundles": true,
+      "isDep": true,
+      "hardFails": [
+        "没有 newSession（无会话时点「AI 对话」不会创建）",
+        "没有 subscribe（新建/切换会话后界面不会刷新）"
+      ]
+    }
+  ],
+  "fails": [
+    {
+      "pkgName": "@xyb-community/small-bowel-workbench",
+      "hardFails": [
+        "没有 newSession（无会话时点「AI 对话」不会创建）",
+        "没有 subscribe（新建/切换会话后界面不会刷新）"
+      ]
+    }
+  ],
+  "notes": [],
+  "leftovers": []
+}

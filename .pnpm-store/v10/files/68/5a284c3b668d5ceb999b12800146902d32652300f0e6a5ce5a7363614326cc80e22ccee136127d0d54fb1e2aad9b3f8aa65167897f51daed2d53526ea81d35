@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="workbench-version" content="__VERSION_DISPLAY__ · __VERSION__ · __BUILD_DATE__">
+  <title>小肠宝 SmallBowelPal · 小肠腺癌工作台</title>
+  <link rel="stylesheet" href="/small-bowel/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#page">跳到内容</a>
+  <div id="app" aria-live="polite">
+    <div class="boot">
+      <p class="boot-mark">小肠宝</p>
+      <p>正在打开工作台…</p>
+    </div>
+  </div>
+  <noscript>这个工作台需要 JavaScript 才能显示。资料本身保存在本机，不会上传。</noscript>
+  <dialog id="primer-dialog" aria-labelledby="primer-title">
+    <div class="primer-head">
+      <p class="eyebrow">解释层 · 不判断个人病情</p>
+      <h2 id="primer-title">小肠腺癌 · 疾病概要</h2>
+      <button class="icon-btn" data-close-primer type="button" aria-label="关闭疾病概要">×</button>
+    </div>
+    <div class="primer-body" id="primer-body"></div>
+  </dialog>
+  <script src="/small-bowel/primer.js"></script>
+  <script src="/small-bowel/app.js"></script>
+</body>
+</html>

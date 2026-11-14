@@ -1,0 +1,6 @@
+- insert:
+    - id: small-bowel-main
+      name: "@xyb-community/small-bowel-workbench"
+      # 接线前置：宿主把业务资料根目录指向 dshHomePath('small-bowel')
+      config:
+        root: !!js dshHomePath('small-bowel')

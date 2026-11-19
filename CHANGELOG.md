@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.2.4 — 2026-11-19
+
+修复「打开官方登记页」在 Desktop 内点不开：沙箱 iframe 缺 allow-popups（target=_blank 被静默拦截）+ 壳层 sba:open-external 兜底通道。
+
 ## 0.2.3 — 2026-11-19
 
 试验线按 35 号四段链路落地：M4 快照（SBA 命中子集 58 条，4 查询 221 去重，通道终态 24 项）；

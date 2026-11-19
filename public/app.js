@@ -871,7 +871,7 @@ function renderTrialDrawer() {
     `<h3>证据链</h3>` + (criteria.length ? criteria.map(criterionHtml).join('') : '<p>没有可对照字段。</p>') +
     `<h3>登记信息</h3><p>${esc(t.summary || '本机快照只存登记的结构化字段，入排标准请到官方登记页核对。')}</p>` +
     `<p class="sub">条件要求来自登记摘要与入排原文；记录里是的值来自档案。${esc(t.snapshotDate || '')} 快照。</p>` +
-    (t.sourceUrl ? `<a class="source-link" href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer">打开官方登记页 ↗</a>` : '<p class="sub">本机快照没有官方链接；请按登记号自行检索。</p>') +
+    (t.sourceUrl ? `<a class="source-link" href="${esc(t.sourceUrl)}" target="_blank" rel="noopener noreferrer" data-open-external="${esc(t.sourceUrl)}">打开官方登记页 ↗</a>` : '<p class="sub">本机快照没有官方链接；请按登记号自行检索。</p>') +
     `<div class="trial-foot" style="margin-top:18px"><button class="text-btn" data-action="save-trial" data-key="${esc(t.trialKey)}">收藏这条线索</button></div>` +
     `</aside>`;
   setTimeout(() => { const b = drawerRoot.querySelector('.drawer .close'); if (b) b.focus(); }, 0);
@@ -976,6 +976,20 @@ document.addEventListener('click', async (event) => {
   if (event.target.closest('[data-action="clear-search"]')) { state.trialFilters = {}; render(); return; }
 
   if (event.target.closest('[data-close-drawer]')) { state.trialDetail = null; renderTrialDrawer(); return; }
+
+  // 官方登记页：沙箱 iframe 里 target=_blank 可能被静默拦截——window.open 返回空就请外壳代开
+  const external = event.target.closest('[data-open-external]');
+  if (external) {
+    const url = external.getAttribute('data-open-external');
+    if (/^https?:\/\//i.test(url)) {
+      event.preventDefault();
+      const opened = window.open(url, '_blank', 'noopener');
+      if (!opened && window.parent !== window) {
+        try { window.parent.postMessage({ type: 'sba:open-external', url }, location.origin); } catch { /* 跨源兜底失败时保持原跳转 */ }
+      }
+    }
+    return;
+  }
 
   if (event.target.closest('.drawer-scrim')) { state.trialDetail = null; renderTrialDrawer(); return; }
 

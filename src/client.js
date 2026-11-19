@@ -141,6 +141,13 @@ function buildPanel(React) {
         setWidth(Math.min(__AGENT_PANE__.max, Math.max(__AGENT_PANE__.min, ratio)));
       };
       const onUp = () => setDragging(false);
+      // 外部链接兜底：业务页 window.open 返回 null 时走此通道（sba:open-external）
+      window.addEventListener('message', (event) => {
+        const data = event && event.data;
+        if (data && data.type === 'sba:open-external' && typeof data.url === 'string' && /^https?:\/\//i.test(data.url)) {
+          window.open(data.url, '_blank', 'noopener');
+        }
+      });
       window.addEventListener('pointermove', onMove);
       window.addEventListener('pointerup', onUp);
       return () => {
@@ -289,7 +296,7 @@ function buildPanel(React) {
             ref: frameRef,
             src: UI_ENTRY,
             title: META.title,
-            sandbox: 'allow-scripts allow-same-origin allow-forms allow-downloads',
+            sandbox: 'allow-scripts allow-same-origin allow-forms allow-downloads allow-popups allow-popups-to-escape-sandbox',
             style: styles.frame,
           }),
         ),

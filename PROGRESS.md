@@ -18,3 +18,10 @@
 - 试验线四段链路：M4 快照（scripts/fetch-small-bowel-trials-2026.mjs，unified-trial-mcp；4 查询 221 去重 → SBA 命中子集 58 条详情，池上限 120，通道终态 24 项，详情失败 0）；schema 0002（trials/source_statuses/app_setting + saved_trials.state，只增不改）；匹配子页（window.calcTrialMatch：粗筛符合度 pct=符合÷已对照、待确认=0、可对照<2 不给百分数、硬性不满足单列；病理类型/分期/部位/年龄/分子标志物/ECOG 逐条证据链三态）；检索子页（按条件不掺分数）；收藏与跟踪三态（在跟/准备问/已归档）。
 - 教训回流：fetch 详情逐条无容错曾让整批 256 条全丢（一条 60s 超时）→ 单条重试 1 次跳过并记录；broad 查询全量详情 25 分钟无界等待 → SBA 命中子集 + 上限。
 - 门禁：check 全绿（含 check:trial-snapshot/chain/matching 入链）+ test 44/44；装机三点核验 0.2.3；重启后本次段报错 0 行。
+
+## 2026-11-19 12:xx 官方登记页外链修复（用户验收反馈，0.2.4）
+
+- 症状：试验详情浮窗「打开官方登记页 ↗」点击无反应。根因：宿主外壳 iframe 的 sandbox 白名单缺 allow-popups——沙箱 iframe 里 target=_blank 被静默拦截（mpn 同款潜在 bug）。
+- 修复：src/client.js sandbox 增 allow-popups allow-popups-to-escape-sandbox；壳层监听 sba:open-external 兜底（业务页 window.open 返回空时 postMessage 请外壳代开）；业务页 source-link 加 data-open-external 点击兜底。原型同步。
+- mpn 同款修复（lib/client.js 直改 + 原型同步），0.2.3。
+- 门禁：双仓 check 全绿（sb 44/44、mpn 13/13）；装机 sb 0.2.4 / mpn 0.2.3；重启后本次段报错 0 行。

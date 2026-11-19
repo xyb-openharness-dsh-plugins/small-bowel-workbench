@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.2.2 — 2026-11-19
+
+顶栏「档案」下拉旁新增「＋ 新建档案」入口（原入口只在档案页内），走同一 profile-dialog。
+
 ## 0.2.1 — 2026-11-19
 
 Desktop 装机实测修复：静态服务对 public/app.js 同样做 __API_BASE__ 等占位符注入（此前 app.js 外链永远带占位符，bootstrap 请求打到宿主 SPA fallback 导致页面无法加载）。

@@ -195,6 +195,7 @@ function render() {
                 ${esc(s.name)}${s.isDemo ? '（示例）' : ''}
               </option>`).join('')}
           </select>
+          <button class="text-btn" data-open-profile type="button" aria-label="创建新档案">＋ 新建档案</button>
         </div>
         <div class="top-actions">
           ${state.profileKey ? '<button class="text-btn" data-open-entry type="button">新增记录</button>' : ''}

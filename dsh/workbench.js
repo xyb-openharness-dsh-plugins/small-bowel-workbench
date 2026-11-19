@@ -2,9 +2,10 @@
  * 工作台服务层：档案、记录写入、隐私、资料目录。
  * 不依赖宿主，可单测；HTTP 层只做路由与认证。
  */
-import { existsSync, mkdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { openStore, closeStore } from './store.js';
+import { fileURLToPath } from 'node:url';
 import { checkDataDir } from './data-dir.js';
 import { seedDemoData, hasDemoData, DEMO_KEYS } from './demo.js';
 import {
@@ -99,7 +100,7 @@ const FIELDS = {
   trials: {
     registryId: 'registry_id', titleText: 'title_text', statusText: 'status_text',
     eligibilityText: 'eligibility_text', siteText: 'site_text', urlText: 'url_text',
-    savedOn: 'saved_on', noteText: 'note_text',
+    savedOn: 'saved_on', noteText: 'note_text', state: 'state',
   },
   viewpoints: {
     topicText: 'topic_text', bodyText: 'body_text', sourceText: 'source_text', recordedOn: 'recorded_on',
@@ -145,6 +146,7 @@ export class Workbench {
     if (this.db) return this;
     if (this.dbFile !== ':memory:') mkdirSync(this.root || '.', { recursive: true });
     this.db = openStore(this.dbFile);
+    try { this.syncTrialSnapshot(); } catch { /* 快照装载失败不阻断打开；试验页按未接通呈现 */ }
     if (this.demo && !hasDemoData(this.db)) {
       seedDemoData(this.db);
       this.seeded = true;
@@ -223,6 +225,8 @@ export class Workbench {
       primarySiteText: row.primary_site_text,
       histologyText: row.histology_text,
       diagnosedOn: row.diagnosed_on,
+      stageText: this.db.prepare('SELECT stage_text FROM diagnoses WHERE profile_key=? AND stage_text IS NOT NULL ORDER BY rowid DESC LIMIT 1').get(row.profile_key)?.stage_text || null,
+      molecularText: this.db.prepare('SELECT molecular_text FROM pathology_reports WHERE profile_key=? AND molecular_text IS NOT NULL ORDER BY rowid DESC LIMIT 1').get(row.profile_key)?.molecular_text || null,
       hospitalText: row.hospital_text,
       clinicianText: row.clinician_text,
       actionPlanText: row.action_plan_text,
@@ -371,8 +375,11 @@ export class Workbench {
       counts: current ? this.statCounts(current) : {},
       recent: current ? recentActivity(this.db, current) : [],
       upcoming: current ? upcomingFollowups(this.db, current) : [],
+      ...(this.trialData()),
       channels: {
-        trials: { status: 'NOT_CONNECTED', label: '试验检索未接通（M6）；不展示未经核对的条数' },
+        trials: this.trialData().trialSnapshot.recordCount
+          ? { status: 'LOCAL_SNAPSHOT', label: '本地快照已装载（会过期）；在线通道未接通' }
+          : { status: 'NOT_CONNECTED', label: '试验检索未接通；不展示未经核对的条数' },
         library: { status: 'LOCAL_ONLY', label: '本机临床库：只含范围与记录口径，待临床审核' },
         documents: { status: 'NOT_CONNECTED', label: '文档解析未接通（MinerU 未配置）' },
         ai: { status: 'HOST_MANAGED', label: 'AI 会话由 DSH 宿主管理' },
@@ -393,11 +400,92 @@ export class Workbench {
     return { subjects: subjectCount, hasDemo: hasDemoData(this.db), seeded: this.seeded };
   }
 
-  trialMatch() {
+  /* 收藏三态（35 号 §六 收藏子页）：手工标记 in_followup / preparing / archived。 */
+  setTrialState(key, id, state) {
+    this.ensure();
+    if (!this.subjectExists(key)) throw Object.assign(new Error('档案不存在'), { status: 404 });
+    if (!['in_followup', 'preparing', 'archived'].includes(state)) throw Object.assign(new Error('收藏状态不合法'), { status: 400 });
+    const changes = Number(this.db.prepare('UPDATE saved_trials SET state=? WHERE id=? AND profile_key=?').run(state, Number(id), String(key)).changes);
+    if (!changes) throw Object.assign(new Error('没有找到这条收藏'), { status: 404 });
+    return { ok: true, id: Number(id), state };
+  }
+
+  /* 快照装载：research/small-bowel-2026 的 jsonl → trials 表，manifest → app_setting。
+     只增不改；FAILED / NEEDS_SETUP 原样进 source_statuses，不算「查过」、不计覆盖。 */
+  syncTrialSnapshot() {
+    const dir = join(dirname(fileURLToPath(import.meta.url)), '..', 'research', 'small-bowel-2026');
+    const manifestPath = join(dir, 'manifest.json');
+    if (!existsSync(manifestPath)) return;
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    const jsonlPath = join(dir, 'trials-2026.jsonl');
+    if (!existsSync(jsonlPath)) return;
+    const rows = readFileSync(jsonlPath, 'utf8').split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
+    const db = this.ensure();
+    const ins = db.prepare(`INSERT INTO trials(record_id,merged_sources,source_id,title,study_type,sponsors,registry_numbers,dates,source_url,retrieved_at,status_note,snapshot_date,conditions_json,phase_json,countries_json,eligibility_text,summary,raw_json,relevant)
+      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(record_id) DO UPDATE SET
+      title=excluded.title, study_type=excluded.study_type, sponsors=excluded.sponsors,
+      registry_numbers=excluded.registry_numbers, dates=excluded.dates, source_url=excluded.source_url,
+      retrieved_at=excluded.retrieved_at, status_note=excluded.status_note, snapshot_date=excluded.snapshot_date,
+      conditions_json=excluded.conditions_json, phase_json=excluded.phase_json, countries_json=excluded.countries_json,
+      eligibility_text=excluded.eligibility_text, summary=excluded.summary, relevant=excluded.relevant`);
+    db.prepare(`INSERT INTO app_setting(key,value,updated_at) VALUES('trial_manifest',?,?)
+      ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at`)
+      .run(JSON.stringify({ snapshotDate: manifest.snapshotDate, recordCount: manifest.recordCount, relevant: manifest.relevant, channels: manifest.channels, failed: manifest.failed }), new Date().toISOString());
+    db.exec('BEGIN');
+    try {
+      for (const r of rows) {
+        ins.run(r.recordId, JSON.stringify(r.mergedSources || [r.sourceId]), r.sourceId, r.title, r.studyType || null,
+          JSON.stringify(r.sponsor || []), JSON.stringify(r.registryNumbers || []), JSON.stringify(r.dates || {}), r.sourceUrl || '',
+          r.retrievedAt || null, r.statusNote || '登记状态，未核实', r.snapshotDate || manifest.snapshotDate,
+          JSON.stringify(r.conditions || []), JSON.stringify(r.phase || []), JSON.stringify(r.countries || []),
+          r.eligibilityText || '', r.summary || '', '{}', 1);
+      }
+      db.exec('COMMIT');
+    } catch (error) { db.exec('ROLLBACK'); throw error; }
+  }
+
+  /* 试验数据装配：快照 trial 行 → 展示形态（无判读列；pct 由展示层 trial-match.js 计算，不入库）。 */
+  trialData() {
+    this.ensure();
+    const parse = (s, fallback) => { try { const v = JSON.parse(s); return v ?? fallback; } catch { return fallback; } };
+    const manifest = (() => { try { return JSON.parse(this.db.prepare("SELECT value FROM app_setting WHERE key='trial_manifest'").get()?.value || 'null'); } catch { return null; } })();
+    const trials = this.db.prepare('SELECT * FROM trials WHERE relevant=1 ORDER BY snapshot_date DESC, record_id').all().map((r) => ({
+      trialKey: r.record_id, title: r.title, registry: (parse(r.registry_numbers, []) || []).find((x) => x.registry === 'NCT')?.value || r.record_id,
+      phase: (parse(r.phase_json, []) || []).join(' / ') || '未标注', status: r.status_note || '登记状态，未核实', studyType: r.study_type,
+      sponsor: (parse(r.sponsors, []) || [])[0] || '未标注', countries: parse(r.countries_json, []) || [],
+      startDate: parse(r.dates, {})?.startDate || '', conditions: parse(r.conditions_json, []) || [],
+      source: r.source_id, sourceUrl: r.source_url, eligibilityText: r.eligibility_text || '', summary: r.summary || '',
+      snapshotDate: r.snapshot_date,
+    }));
     return {
-      status: 'UNAVAILABLE',
-      reason: '本次开发环境未联网，未建立试验快照；不返回未经核对的结果。',
-      checkedAt: new Date().toISOString(),
+      trials,
+      trialSnapshot: {
+        snapshotDate: manifest?.snapshotDate || '未标注', recordCount: manifest?.recordCount ?? trials.length,
+        relevant: manifest?.relevant ?? trials.length, returned: trials.length,
+        candidateScope: `本地快照 ${manifest?.recordCount ?? trials.length} 条；相关 ${manifest?.relevant ?? trials.length} 条；不是全库扫描`,
+        channels: (manifest?.channels || []).map((c) => ({ id: c.id, label: c.id, state: c.state, count: c.records, note: '' })),
+        failed: manifest?.failed || [],
+        disclaimer: '登记状态，未核实；登记 ≠ 有效 ≠ 安全 ≠ 可入组。快照会过期。',
+      },
+    };
+  }
+
+  /* 检索子页：关键词 LIKE，不掺分数；未建快照时如实返回空池 + 原因。 */
+  trialMatch(keyword) {
+    this.ensure();
+    const hasSnapshot = Number(this.db.prepare('SELECT COUNT(*) AS n FROM trials').get()?.n || 0) > 0
+    if (!hasSnapshot) {
+      return { ok: false, status: 'UNAVAILABLE', reason: '本机未建立试验快照；不返回未经核对的结果。', checkedAt: new Date().toISOString() };
+    }
+    const total = Number(this.db.prepare('SELECT COUNT(*) AS n FROM trials').get()?.n || 0);
+    const q = String(keyword || '').trim().slice(0, 120);
+    const rows = q
+      ? this.db.prepare(`SELECT * FROM trials WHERE title LIKE ? OR conditions_json LIKE ? OR eligibility_text LIKE ? ORDER BY record_id LIMIT 100`).all(`%${q}%`, `%${q}%`, `%${q}%`)
+      : this.db.prepare('SELECT * FROM trials ORDER BY record_id LIMIT 100').all();
+    return {
+      ok: true, total, returned: rows.length,
+      honestyNote: '登记状态未核实；快照会过期；不是全库扫描；登记 ≠ 有效 ≠ 安全 ≠ 可入组。',
+      records: rows,
     };
   }
 

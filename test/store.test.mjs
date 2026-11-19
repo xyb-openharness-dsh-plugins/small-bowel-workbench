@@ -26,10 +26,11 @@ test('表清单：13 张业务表 + subjects/section_titles', () => {
       'subjects', 'section_titles', 'diagnoses', 'pathology_reports', 'lab_results',
       'imaging_events', 'treatments', 'medications', 'symptom_notes', 'nutrition_records',
       'followup_plans', 'documents', 'saved_trials', 'viewpoints',
+      'trials', 'source_statuses', 'app_setting',
     ]) {
       assert.ok(names.includes(table), '缺表 ' + table);
     }
-    assert.equal(names.length, 14);
+    assert.equal(names.length, 17);
   } finally {
     closeStore(db);
   }

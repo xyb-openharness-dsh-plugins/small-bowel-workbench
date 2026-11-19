@@ -24,7 +24,7 @@ test('开库→播种→bootstrap 稳定、幂等', () => {
     assert.equal(b1.demoMode, true);
     assert.equal(b1.subjects.length, 2);
     assert.ok(b1.counts.labs > 0);
-    assert.equal(b1.channels.trials.status, 'NOT_CONNECTED');
+    assert.ok(['LOCAL_SNAPSHOT', 'NOT_CONNECTED'].includes(b1.channels.trials.status), '试验通道状态非法');
     assert.ok(b1.disclaimers.length >= 3);
   });
 });
@@ -95,11 +95,18 @@ test('隐私：默认读不到，导出也读不到；打开 includePrivate 可�
   });
 });
 
-test('试验通道未接通时如实返回 UNAVAILABLE，不伪造结果', () => {
+test('试验通道如实：无快照返回 UNAVAILABLE；有快照返回真实池 + honestyNote，不伪造', () => {
   withWorkbench((wb) => {
     const result = wb.trialMatch();
-    assert.equal(result.status, 'UNAVAILABLE');
-    assert.equal(result.items, undefined);
+    if (result.ok) {
+      assert.equal(typeof result.total, 'number');
+      assert.ok(result.records.length <= 100, '返回不得超过 100 条');
+      assert.match(result.honestyNote, /未核实/);
+    } else {
+      assert.equal(result.status, 'UNAVAILABLE');
+      assert.equal(result.records, undefined);
+      assert.match(result.reason, /未建立试验快照/);
+    }
   });
 });
 

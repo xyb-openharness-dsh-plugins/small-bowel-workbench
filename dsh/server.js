@@ -183,6 +183,16 @@ export function createHandler({ apiBase = '/api/small-bowel', publicDir, service
       }
     }
 
+    if (pathname === api + '/trials/state') {
+      if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+      try {
+        const body = await readJson(req);
+        return sendJson(res, 200, services.setTrialState(body.profileKey, body.id, body.state));
+      } catch (error) {
+        return sendJson(res, error.status || 400, { error: '收藏状态更新失败', detail: String(error.message || error) });
+      }
+    }
+
     if (pathname === api + '/trials/match') {
       if (req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
       return sendJson(res, 200, services.trialMatch());

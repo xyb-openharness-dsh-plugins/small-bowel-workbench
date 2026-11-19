@@ -53,6 +53,7 @@ export function readPathology(db, key, { includePrivate = false } = {}) {
     nodesPositive: r.nodes_positive,
     molecularText: r.molecular_text,
     noteText: r.note_text,
+    state: r.state || 'in_followup',
     isPrivate: Boolean(r.is_private),
   }));
 }

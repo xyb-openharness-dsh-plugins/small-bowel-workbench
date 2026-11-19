@@ -99,6 +99,7 @@ export function apply(ctx, config = {}) {
     trialMatch: () => workbench.trialMatch(),
     clinicalLibrary: () => workbench.clinicalLibrary(),
     currentProfileKey: () => workbench.getCurrentProfileKey(),
+    setTrialState: (key, id, state) => workbench.setTrialState(key, id, state),
   };
 
   const handler = createHandler({ apiBase: API_BASE_HOSTED, publicDir: PUBLIC_DIR, services });

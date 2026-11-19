@@ -1,0 +1,80 @@
+{
+  "slug": "mpn",
+  "disease": "myeloproliferative neoplasms (PV / ET / PMF)",
+  "snapshotDate": "2026-11-19",
+  "retrievedAt": "2026-11-19T03:22:16.186Z",
+  "source": "unified-trial-mcp (MCP stdio)",
+  "sourceVersion": "0.3.1",
+  "queries": [
+    {
+      "query": "small bowel adenocarcinoma",
+      "total": 39,
+      "returned": 39
+    },
+    {
+      "query": "small intestine adenocarcinoma",
+      "total": 17,
+      "returned": 17
+    },
+    {
+      "query": "small intestine cancer",
+      "total": 100,
+      "returned": 100
+    },
+    {
+      "query": "small bowel cancer",
+      "total": 100,
+      "returned": 100
+    }
+  ],
+  "recordCount": 58,
+  "dbCount": 58,
+  "relevant": 58,
+  "sourceStatusRows": 24,
+  "files": {
+    "trials-2026.jsonl": {
+      "sha256": "7a81b18dd55310fd8244945bdecdca66b84b39b90c3347f660dc0fe5b0cb3ecb",
+      "bytes": 62923
+    },
+    "small_bowel_trials_2026.sqlite": {
+      "sha256": "bc4e5cf3f072ef0b8ab3b89f0113b1182597328b6f16f91bd98e2de087d5c338",
+      "bytes": 192512
+    }
+  },
+  "channels": [
+    {
+      "id": "chinadrugtrials",
+      "state": "DENIED",
+      "records": 0
+    },
+    {
+      "id": "xyb_chinadrugtrials_archive",
+      "state": "NO_RESULTS",
+      "records": 0
+    },
+    {
+      "id": "chictr_online",
+      "state": "NEEDS_SETUP",
+      "records": 0
+    },
+    {
+      "id": "chictr_pancreatic_archive",
+      "state": "NEEDS_SETUP",
+      "records": 0
+    },
+    {
+      "id": "ctv",
+      "state": "NO_RESULTS",
+      "records": 0
+    },
+    {
+      "id": "ictrp",
+      "state": "SUCCESS",
+      "records": 58
+    }
+  ],
+  "failedDetail": [],
+  "failed": [],
+  "candidateScope": "已载 58 / 221 条（SBA 命中子集，上限 120）；不是全库扫描。",
+  "coverageNote": "本地快照 + 在线通道；FAILED/NEEDS_SETUP 不算查过，不计覆盖率；不是全库扫描。"
+}

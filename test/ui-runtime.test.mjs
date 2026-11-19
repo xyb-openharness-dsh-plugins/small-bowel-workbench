@@ -138,9 +138,14 @@ test('页面运行时：试验页展示本机临床库，但不伪造试验条�
   const html = await h.sandbox.buildPage('trials');
   assert.ok(html.includes('本机临床库'));
   assert.ok(html.includes('收录范围：小肠原发腺癌'));
-  assert.ok(html.includes('NOT_CONNECTED'));
+  assert.ok(html.includes('data-trial-tab="match"'), '缺匹配子页');
+  assert.ok(html.includes('data-trial-tab="search"'), '缺检索子页');
+  assert.ok(html.includes('data-trial-tab="saved"'), '缺收藏与跟踪子页');
+  assert.ok(html.includes('本机临床库'));
   assert.ok(html.includes('待临床审核'));
-  assert.ok(!/\d+ 条试验/.test(html), '未接通时不得显示试验条数');
+  const hasSnapshot = html.includes('pool-head');
+  if (!hasSnapshot) assert.ok(html.includes('未建立试验快照'), '无快照时必须如实声明');
+  assert.ok(!/\d+ 条试验/.test(html), '不得伪造试验条数');
 });
 
 test('页面运行时：只读桥可切页、拒绝未知页，不提供写入', async () => {

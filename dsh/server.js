@@ -201,7 +201,12 @@ export function createHandler({ apiBase = '/api/small-bowel', publicDir, service
     if (!file) return sendText(res, 500, 'public/index.html missing');
     try {
       let body = readFileSync(file);
-      if (file.endsWith('.html')) {
+      // app.js 以外链形式被 index.html 引用，占位符（__API_BASE__ 等）只在 .html 注入时
+      // 会被替换，app.js 永远不会被替换 → fetch('__API_BASE__/bootstrap') 打到宿主 SPA
+      // fallback 返回 200 HTML，前端 boot=null 报「Cannot read properties of null
+      // (reading 'currentProfileKey')」（2026-11-19 Desktop 装机实测）。这里对 app.js
+      // 同样做注入。
+      if (file.endsWith('.html') || file.endsWith('app.js')) {
         body = Buffer.from(injectTokens(body.toString('utf8'), {
           apiBase: apiBase,
           version: services.version,

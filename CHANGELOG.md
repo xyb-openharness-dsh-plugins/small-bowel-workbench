@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.2.1 — 2026-11-19
+
+Desktop 装机实测修复：静态服务对 public/app.js 同样做 __API_BASE__ 等占位符注入（此前 app.js 外链永远带占位符，bootstrap 请求打到宿主 SPA fallback 导致页面无法加载）。
+
 ## 0.2.0 — 2026-11-14
 
 M4–M9 开发日：面板契约修复、本机临床库、写入/隐私/导出、隔离测试 profile 装机扫描。

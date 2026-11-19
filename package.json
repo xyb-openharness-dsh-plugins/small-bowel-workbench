@@ -1,6 +1,6 @@
 {
   "name": "@xyb-community/small-bowel-workbench",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "本机优先的小肠腺癌（SBA）确诊档案、病理与分子检测、手术/系统治疗记录、化验与影像随访、症状营养与临床试验准备患者工作台",
   "private": true,
   "type": "module",
